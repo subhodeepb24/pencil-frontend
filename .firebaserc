@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "pencil-frontend-assignme-30dbf": {
+      "hosting": {
+        "pencil-frontend": [
+          "pencil-frontend-assignme-30dbf"
+        ]
+      }
+    }
+  }
+}
