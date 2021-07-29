@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 import { AngularFirestore } from '@angular/fire/firestore';
 
@@ -9,7 +10,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginpageComponent } from './loginpage/loginpage.component';
 import { AngularFireModule } from '@angular/fire';
-import { ProfileComponent } from './profile/profile.component';
+import { HomepageComponent } from './homepage/homepage.component';
 import { AuthService } from './auth.service';
 import { environment } from '../environments/environment';
 
@@ -17,14 +18,15 @@ import { environment } from '../environments/environment';
   declarations: [
     AppComponent,
     LoginpageComponent,
-    ProfileComponent,
+    HomepageComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
-    AngularFireAuthModule
+    AngularFireAuthModule,
+    ColorPickerModule
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]

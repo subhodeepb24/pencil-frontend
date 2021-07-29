@@ -15,6 +15,7 @@ export class AuthService {
     private router: Router) { }
 
   googleLogin() {
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
     const provider = new firebase.auth.GoogleAuthProvider();
     return this.oAuthLogin(provider)
       .then(async value => {
@@ -27,7 +28,7 @@ export class AuthService {
         if (!existingUser) {
           this.setUserData(value.user);
         }
-        this.router.navigateByUrl('/profile');
+        this.router.navigateByUrl('/homepage');
       })
       .catch(error => {
         console.log('Something went wrong: ', error);

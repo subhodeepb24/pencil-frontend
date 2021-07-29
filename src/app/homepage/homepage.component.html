@@ -1,0 +1,12 @@
+<h1>Canvas</h1>
+<div class="container">
+    <div class="canvas-area">
+        <canvas width="600" height="600" style="border: 1px solid #cccccc;" id="fabricSurface"></canvas>
+        <br>
+        <input [(colorPicker)]="color" [style.background]="color" (colorPickerChange)="onColorChange($event)" />
+        <br><br>
+        <button (click)="clearCanvas()">Clear Canvas</button>
+        <button (click)="storeCanvasDataInFirestore()">Submit</button>
+    </div>
+    <button (click)="signOut()">Sign Out</button>
+</div>
