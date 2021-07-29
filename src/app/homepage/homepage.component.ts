@@ -7,6 +7,8 @@ import { Router } from '@angular/router';
 import { CanvasData } from '../models/canvas_data';
 import { AngularFireAuth } from '@angular/fire/auth';
 
+const polling = require('light-async-polling')
+
 @Component({
   selector: 'app-homepage',
   templateUrl: './homepage.component.html',
@@ -18,6 +20,7 @@ export class HomepageComponent implements OnInit {
   public color = '#111111';
   public savedJson = '';
   public clearCanvasJson = '';
+  public signedOut = false;
 
   constructor(public authService: AuthService,
     private router: Router,
@@ -33,10 +36,18 @@ export class HomepageComponent implements OnInit {
     });
     this._canvas.freeDrawingBrush.color = this.color;
     this.clearCanvasJson = this._canvas.toJSON();
-    
+
     this.afAuth.onAuthStateChanged(async (user) => {
       if (user) {
         await this.loadCanvasFromFirestore(user);
+        await polling(async () => {
+          this.storeCanvasDataInFirestore();
+          if(this.signedOut) {
+            return true;
+          } else {
+            return false;
+          }
+        }, 5000)
       } else {
         console.log('onAuthStateChanged user null');
       }
@@ -116,6 +127,7 @@ export class HomepageComponent implements OnInit {
   }
 
   signOut() {
+    this.signedOut = true;
     this.authService.logout();
   }
 }
