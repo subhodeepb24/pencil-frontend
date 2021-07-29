@@ -31,7 +31,14 @@ export class HomepageComponent implements OnInit {
     });
     this._canvas.freeDrawingBrush.color = this.color;
     this.clearCanvasJson = this._canvas.toJSON();
-    this.loadCanvasFromFirestore();
+    
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.loadCanvasFromFirestore();
+      } else {
+        this.router.navigateByUrl('/login');
+      }
+    });
   }
 
   async loadCanvasFromFirestore() {
