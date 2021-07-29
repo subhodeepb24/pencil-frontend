@@ -5,6 +5,7 @@ import firebase from 'firebase/app';
 import { fabric } from 'fabric';
 import { Router } from '@angular/router';
 import { CanvasData } from '../models/canvas_data';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-homepage',
@@ -20,7 +21,8 @@ export class HomepageComponent implements OnInit {
 
   constructor(public authService: AuthService,
     private router: Router,
-    private afs: AngularFirestore) { }
+    private afs: AngularFirestore,
+    private afAuth: AngularFireAuth) { }
 
   ngOnInit() {
     this._canvas = new fabric.Canvas('fabricSurface', {
@@ -32,18 +34,16 @@ export class HomepageComponent implements OnInit {
     this._canvas.freeDrawingBrush.color = this.color;
     this.clearCanvasJson = this._canvas.toJSON();
     
-    firebase.auth().onAuthStateChanged((user) => {
+    this.afAuth.onAuthStateChanged(async (user) => {
       if (user) {
-        this.loadCanvasFromFirestore();
+        await this.loadCanvasFromFirestore(user);
       } else {
-        this.router.navigateByUrl('/login');
+        console.log('onAuthStateChanged user null');
       }
     });
   }
 
-  async loadCanvasFromFirestore() {
-    const user = firebase.auth().currentUser;
-
+  async loadCanvasFromFirestore(user: firebase.User) {
     if (user != null) {
       const existingCanvasDocuments = await this.retrieveExistingCanvasDocuments(user.uid);
 
