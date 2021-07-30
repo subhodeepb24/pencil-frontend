@@ -21,6 +21,10 @@ export class HomepageComponent implements OnInit {
   public savedJson = '';
   public clearCanvasJson = '';
   public signedOut = false;
+  public selectedFile?: File
+  public drawingMode = true;
+  public modeTitle = 'Drawing Mode';
+  public canvasLoaded = false;
 
   constructor(public authService: AuthService,
     private router: Router,
@@ -32,7 +36,7 @@ export class HomepageComponent implements OnInit {
       backgroundColor: '#f2f2f2',
       isDrawingMode: true,
       selection: false,
-      preserveObjectStacking: true,
+      // preserveObjectStacking: true
     });
     this._canvas.freeDrawingBrush.color = this.color;
     this.clearCanvasJson = this._canvas.toJSON();
@@ -40,6 +44,8 @@ export class HomepageComponent implements OnInit {
     this.afAuth.onAuthStateChanged(async (user) => {
       if (user) {
         await this.loadCanvasFromFirestore(user);
+        this.canvasLoaded = true;
+        
         await polling(async () => {
           this.storeCanvasDataInFirestore();
           if(this.signedOut) {
@@ -47,7 +53,7 @@ export class HomepageComponent implements OnInit {
           } else {
             return false;
           }
-        }, 5000)
+        }, 10000)
       } else {
         console.log('onAuthStateChanged user null');
       }
@@ -83,8 +89,6 @@ export class HomepageComponent implements OnInit {
     this.color = value;
     if (this._canvas != null) {
       this._canvas.freeDrawingBrush.color = this.color;
-      this.savedJson = this._canvas.toJSON();
-      this._canvas.loadFromJSON(this.savedJson, this.onJsonLoaded);
     }
   }
 
@@ -129,5 +133,38 @@ export class HomepageComponent implements OnInit {
   signOut() {
     this.signedOut = true;
     this.authService.logout();
+  }
+
+  onFileChanged(event: any) {
+    this.selectedFile = event.target.files[0];
+    console.log('file:' + this.selectedFile);
+    let fileUrl = URL.createObjectURL(this.selectedFile);
+    fabric.Image.fromURL(fileUrl, (img) => {
+      img.hasControls = true;
+      img.hasBorders = true;
+      this._canvas?.add(img);
+      this.setEditMode();
+    });
+  }
+  toggleModes() {
+    if (this.drawingMode) {
+      this.setEditMode();
+    } else {
+      this.setDrawingMode();
+    }
+  }
+  setDrawingMode() {
+    this.modeTitle = 'Drawing Mode';
+    this.drawingMode = true;
+    if (this._canvas != null) {
+      this._canvas.isDrawingMode = this.drawingMode;
+    }
+  }
+  setEditMode() {
+    this.modeTitle = 'Edit Mode';
+    this.drawingMode = false;
+    if (this._canvas != null) {
+      this._canvas.isDrawingMode = this.drawingMode;
+    }
   }
 }

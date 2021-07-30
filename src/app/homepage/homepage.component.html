@@ -1,12 +1,32 @@
-<h1>Canvas</h1>
+<h1 class="title">Canvas</h1>
 <div class="container">
-    <div class="canvas-area">
+    <mat-spinner style="margin:0 auto;" *ngIf="canvasLoaded === false"></mat-spinner>
+    <br>
+    
+    <div style=' text-align:center'>
         <canvas width="600" height="600" style="border: 1px solid #cccccc;" id="fabricSurface"></canvas>
         <br>
-        <input [(colorPicker)]="color" [style.background]="color" (colorPickerChange)="onColorChange($event)" />
-        <br><br>
-        <button (click)="clearCanvas()">Clear Canvas</button>
-        <button (click)="storeCanvasDataInFirestore()">Submit</button>
     </div>
-    <button (click)="signOut()">Sign Out</button>
+
+    <p style='display:inline; font-family:sans-serif;'>Choose Color : </p>
+    <input [(colorPicker)]="color" [style.background]="color" (colorPickerChange)="onColorChange($event)" />
+
+    <input #fileUpload hidden="true" type="file" (change)="onFileChanged($event)" />
+    <button mat-raised-button (click)="fileUpload.click()">Upload Image</button>
+
+    <br><br>
+
+    <p style='display:inline; font-family:sans-serif;'>Toggle Mode :</p>
+    <div class="button-container">
+        <button mat-raised-button (click)="toggleModes()">In {{modeTitle}}</button>
+    </div>
+
+    <br>
+
+    <div class="button-container">
+        <button mat-raised-button (click)="clearCanvas()">Clear Canvas</button>
+    </div>
+    <div class="button-container">
+        <button mat-raised-button color="warn" (click)="signOut()">Sign Out</button>
+    </div>
 </div>

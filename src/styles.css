@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 body {
-    background: #3D9970;
+    background: #D1E8E2;
     padding-top: 1em;
     font-family: sans-serif;
 }
@@ -17,16 +17,26 @@ body {
     text-align: center;
 }
 
-.canvas-area {
-    padding: 1em;
-    text-align: center;
+.canvas-container { 
+    margin:0 auto ;               
 }
 
-button {
+.mat-progress-spinner circle, .mat-spinner circle {
+    stroke: #049972;
+}
+
+.button-container {
     padding: 0.5em;
     cursor: pointer;
     margin-right: 15px;
     font-size: 1em;
+    font-family: sans-serif;
+    display: inline-block;
+}
+
+input {
+    padding: 0.5em;
+    margin-right: 15px;
     font-family: sans-serif;
 }
 
