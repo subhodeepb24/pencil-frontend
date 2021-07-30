@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { CanvasData } from '../models/canvas_data';
 import { AngularFireAuth } from '@angular/fire/auth';
 
-const polling = require('light-async-polling')
+const polling = require('light-async-polling');
 
 @Component({
   selector: 'app-homepage',
@@ -21,7 +21,7 @@ export class HomepageComponent implements OnInit {
   public savedJson = '';
   public clearCanvasJson = '';
   public signedOut = false;
-  public selectedFile?: File
+  public selectedFile?: File;
   public drawingMode = true;
   public modeTitle = 'Drawing Mode';
   public canvasLoaded = false;
@@ -45,17 +45,17 @@ export class HomepageComponent implements OnInit {
       if (user) {
         await this.loadCanvasFromFirestore(user);
         this.canvasLoaded = true;
-        
+
         await polling(async () => {
           this.storeCanvasDataInFirestore();
-          if(this.signedOut) {
+          if (this.signedOut) {
             return true;
           } else {
             return false;
           }
-        }, 10000)
+        }, 10000);
       } else {
-        console.log('onAuthStateChanged user null');
+        console.log('onAuthStateChanged user not logged in.');
       }
     });
   }
@@ -68,14 +68,12 @@ export class HomepageComponent implements OnInit {
         const latestCanvasDocument = existingCanvasDocuments.docs[0];
         const canvasJsonData = latestCanvasDocument.get('data');
         if (this._canvas != null) {
-          this._canvas.loadFromJSON(canvasJsonData, this.onJsonLoaded);
+          this._canvas.loadFromJSON(canvasJsonData, () => {
+            console.log('Canvas data loaded!');
+          });
         }
       }
     }
-  }
-
-  onJsonLoaded() {
-    console.log('JSON Loaded');
   }
 
   clearCanvas() {
@@ -137,7 +135,6 @@ export class HomepageComponent implements OnInit {
 
   onFileChanged(event: any) {
     this.selectedFile = event.target.files[0];
-    console.log('file:' + this.selectedFile);
     let fileUrl = URL.createObjectURL(this.selectedFile);
     fabric.Image.fromURL(fileUrl, (img) => {
       img.hasControls = true;
@@ -146,6 +143,7 @@ export class HomepageComponent implements OnInit {
       this.setEditMode();
     });
   }
+
   toggleModes() {
     if (this.drawingMode) {
       this.setEditMode();
@@ -153,6 +151,7 @@ export class HomepageComponent implements OnInit {
       this.setDrawingMode();
     }
   }
+
   setDrawingMode() {
     this.modeTitle = 'Drawing Mode';
     this.drawingMode = true;
@@ -160,6 +159,7 @@ export class HomepageComponent implements OnInit {
       this._canvas.isDrawingMode = this.drawingMode;
     }
   }
+
   setEditMode() {
     this.modeTitle = 'Edit Mode';
     this.drawingMode = false;
