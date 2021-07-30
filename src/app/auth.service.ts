@@ -32,11 +32,11 @@ export class AuthService {
 
         let existingUser = false;
         if (value.user != null) {
-          existingUser = await this.checkIfUserExists(value.user.uid);
+          existingUser = await this.checkIfUserExistsInDatabase(value.user.uid);
         }
 
         if (!existingUser) {
-          this.setUserData(value.user);
+          this.setUserDataInDatabase(value.user);
         }
         this.router.navigateByUrl('/homepage');
       })
@@ -45,11 +45,12 @@ export class AuthService {
       });
   }
 
-  logout() {
-    this.afAuth.signOut().then(() => {
-      localStorage.removeItem('user');
-      this.router.navigate(['/']);
-    });
+  private oAuthLogin(provider: any) {
+    return this.afAuth.signInWithPopup(provider);
+  }
+
+  getUser(): firebase.User | null {
+    return firebase.auth().currentUser ?? null;
   }
 
   isLoggedIn(): boolean {
@@ -57,24 +58,28 @@ export class AuthService {
     return (user.emailVerified != null) ? true : false;
   }
 
-  private oAuthLogin(provider: any) {
-    return this.afAuth.signInWithPopup(provider);
-  }
-
-  setUserData(user: any) {
+  setUserDataInDatabase(user: any) {
     const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
     const userData: User = {
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName
+      name: user.displayName,
+      created_at: new Date()
     };
     return userRef.set(userData, {
       merge: true
     });
   }
 
-  async checkIfUserExists(uid: string): Promise<boolean> {
+  async checkIfUserExistsInDatabase(uid: string): Promise<boolean> {
     const existingUser = await this.afs.doc(`users/${uid}`).get().toPromise();
     return existingUser.exists;
+  }
+
+  logout() {
+    this.afAuth.signOut().then(() => {
+      localStorage.removeItem('user');
+      this.router.navigate(['/']);
+    });
   }
 }

@@ -6,6 +6,8 @@ import { fabric } from 'fabric';
 import { Router } from '@angular/router';
 import { CanvasData } from '../models/canvas_data';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFireStorage } from '@angular/fire/storage';
+import { finalize } from 'rxjs/operators';
 
 const polling = require('light-async-polling');
 
@@ -25,11 +27,13 @@ export class HomepageComponent implements OnInit {
   public drawingMode = true;
   public modeTitle = 'Drawing Mode';
   public canvasLoaded = false;
+  public imageUploaded = true;
 
   constructor(public authService: AuthService,
     private router: Router,
     private afs: AngularFirestore,
-    private afAuth: AngularFireAuth) { }
+    private afAuth: AngularFireAuth,
+    private afStorage: AngularFireStorage) { }
 
   ngOnInit() {
     this._canvas = new fabric.Canvas('fabricSurface', {
@@ -45,6 +49,7 @@ export class HomepageComponent implements OnInit {
       if (user) {
         await this.loadCanvasFromFirestore(user);
         this.canvasLoaded = true;
+        this.storeCanvasDataInFirestore();
 
         await polling(async () => {
           this.storeCanvasDataInFirestore();
@@ -73,20 +78,6 @@ export class HomepageComponent implements OnInit {
           });
         }
       }
-    }
-  }
-
-  clearCanvas() {
-    if (this._canvas != null) {
-      this._canvas.clear();
-      this._canvas.loadFromJSON(this.clearCanvasJson, this._canvas.renderAll.bind(this._canvas));
-    }
-  }
-
-  async onColorChange(value: string) {
-    this.color = value;
-    if (this._canvas != null) {
-      this._canvas.freeDrawingBrush.color = this.color;
     }
   }
 
@@ -128,20 +119,42 @@ export class HomepageComponent implements OnInit {
       .orderBy("last_modified_at", "desc").get();
   }
 
-  signOut() {
-    this.signedOut = true;
-    this.authService.logout();
+  async onColorChange(value: string) {
+    this.color = value;
+    if (this._canvas != null) {
+      this._canvas.freeDrawingBrush.color = this.color;
+    }
   }
 
-  onFileChanged(event: any) {
+  imageUpload(event: any) {
+    this.imageUploaded = false;
     this.selectedFile = event.target.files[0];
-    let fileUrl = URL.createObjectURL(this.selectedFile);
-    fabric.Image.fromURL(fileUrl, (img) => {
+    const user = this.authService.getUser();
+    
+    if (user != null) {
+      const currentDate = new Date();
+      const filePath = `/${user.uid}/${currentDate.getTime().toString()}.png`;
+      const fileRef = this.afStorage.ref(filePath);
+      const task = this.afStorage.upload(filePath, event.target.files[0]);
+
+      task.snapshotChanges().pipe(
+        finalize(() =>
+          fileRef.getDownloadURL().subscribe(value => {
+            this.insertImageToCanvas(value);
+          })
+        )
+      ).subscribe();
+    }
+  }
+
+  insertImageToCanvas(imageUrl: string) {
+    fabric.Image.fromURL(imageUrl, (img) => {
       img.hasControls = true;
       img.hasBorders = true;
       this._canvas?.add(img);
       this.setEditMode();
     });
+    this.imageUploaded = true;
   }
 
   toggleModes() {
@@ -166,5 +179,18 @@ export class HomepageComponent implements OnInit {
     if (this._canvas != null) {
       this._canvas.isDrawingMode = this.drawingMode;
     }
+  }
+
+  clearCanvas() {
+    if (this._canvas != null) {
+      this._canvas.clear();
+      this._canvas.loadFromJSON(this.clearCanvasJson, this._canvas.renderAll.bind(this._canvas));
+      this.storeCanvasDataInFirestore();
+    }
+  }
+
+  signOut() {
+    this.signedOut = true;
+    this.authService.logout();
   }
 }

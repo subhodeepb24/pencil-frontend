@@ -1,6 +1,6 @@
 <h1>Canvas</h1>
 <div class="container">
-    <mat-spinner style="margin:0 auto;" *ngIf="canvasLoaded === false"></mat-spinner>
+    <mat-spinner style="margin:0 auto;" *ngIf="canvasLoaded === false || imageUploaded === false"></mat-spinner>
     <br>
 
     <div style=' text-align:center'>
@@ -11,7 +11,7 @@
     <p style='display:inline; font-family:sans-serif;'>Choose Color : </p>
     <input [(colorPicker)]="color" [style.background]="color" (colorPickerChange)="onColorChange($event)" />
 
-    <input #fileUpload hidden="true" type="file" (change)="onFileChanged($event)" />
+    <input #fileUpload hidden="true" type="file" (change)="imageUpload($event)" />
     <button mat-raised-button (click)="fileUpload.click()">Upload Image</button>
 
     <br><br>
