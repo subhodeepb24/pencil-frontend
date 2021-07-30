@@ -36,7 +36,7 @@ export class HomepageComponent implements OnInit {
       backgroundColor: '#f2f2f2',
       isDrawingMode: true,
       selection: false,
-      // preserveObjectStacking: true
+      preserveObjectStacking: true
     });
     this._canvas.freeDrawingBrush.color = this.color;
     this.clearCanvasJson = this._canvas.toJSON();

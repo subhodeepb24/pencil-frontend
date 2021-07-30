@@ -11,10 +11,21 @@ export class AuthService {
   constructor(
     private afs: AngularFirestore,
     private afAuth: AngularFireAuth,
-    private router: Router) { }
+    private router: Router) {
 
-  googleLogin() {
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+    this.afAuth.authState.subscribe(user => {
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+        JSON.parse(localStorage.getItem('user') ?? '{}');
+      } else {
+        localStorage.setItem('user', '{}');
+        JSON.parse(localStorage.getItem('user') ?? '{}');
+      }
+    });
+  }
+
+  async googleLogin() {
+    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     const provider = new firebase.auth.GoogleAuthProvider();
     return this.oAuthLogin(provider)
       .then(async value => {
@@ -36,8 +47,14 @@ export class AuthService {
 
   logout() {
     this.afAuth.signOut().then(() => {
+      localStorage.removeItem('user');
       this.router.navigate(['/']);
     });
+  }
+
+  isLoggedIn(): boolean {
+    const user = JSON.parse(localStorage.getItem('user') ?? '{}');
+    return (user !== null && user.emailVerified !== false) ? true : false;
   }
 
   private oAuthLogin(provider: any) {
@@ -50,10 +67,10 @@ export class AuthService {
       uid: user.uid,
       email: user.email,
       displayName: user.displayName
-    }
+    };
     return userRef.set(userData, {
       merge: true
-    })
+    });
   }
 
   async checkIfUserExists(uid: string): Promise<boolean> {
