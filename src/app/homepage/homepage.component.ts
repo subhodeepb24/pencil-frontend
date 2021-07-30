@@ -1,13 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../auth.service';
-import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
-import firebase from 'firebase/app';
-import { fabric } from 'fabric';
-import { Router } from '@angular/router';
-import { CanvasData } from '../models/canvas_data';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFireStorage } from '@angular/fire/storage';
+import { fabric } from 'fabric';
 import { finalize } from 'rxjs/operators';
+
+import { AuthService } from '../auth.service';
+import { DatabaseService } from '../database.service';
 
 const polling = require('light-async-polling');
 
@@ -30,8 +28,7 @@ export class HomepageComponent implements OnInit {
   public imageUploaded = true;
 
   constructor(public authService: AuthService,
-    private router: Router,
-    private afs: AngularFirestore,
+    public databaseService: DatabaseService,
     private afAuth: AngularFireAuth,
     private afStorage: AngularFireStorage) { }
 
@@ -47,76 +44,25 @@ export class HomepageComponent implements OnInit {
 
     this.afAuth.onAuthStateChanged(async (user) => {
       if (user) {
-        await this.loadCanvasFromFirestore(user);
-        this.canvasLoaded = true;
-        this.storeCanvasDataInFirestore();
 
-        await polling(async () => {
-          this.storeCanvasDataInFirestore();
-          if (this.signedOut) {
-            return true;
-          } else {
-            return false;
-          }
-        }, 10000);
+        await this.databaseService.loadCanvasFromFirestore(this._canvas ?? null, user, () => {
+          this.canvasLoaded = true;
+          this.databaseService.storeCanvasDataInFirestore(this._canvas ?? null);
+
+          polling(async () => {
+            this.databaseService.storeCanvasDataInFirestore(this._canvas ?? null);
+            if (this.signedOut) {
+              return true;
+            } else {
+              return false;
+            }
+          }, 5000);
+        });
+
       } else {
         console.log('onAuthStateChanged user not logged in.');
       }
     });
-  }
-
-  async loadCanvasFromFirestore(user: firebase.User) {
-    if (user != null) {
-      const existingCanvasDocuments = await this.retrieveExistingCanvasDocuments(user.uid);
-
-      if (existingCanvasDocuments.size > 0) {
-        const latestCanvasDocument = existingCanvasDocuments.docs[0];
-        const canvasJsonData = latestCanvasDocument.get('data');
-        if (this._canvas != null) {
-          this._canvas.loadFromJSON(canvasJsonData, () => {
-            console.log('Canvas data loaded!');
-          });
-        }
-      }
-    }
-  }
-
-  async storeCanvasDataInFirestore() {
-    const user = firebase.auth().currentUser;
-
-    if (user != null) {
-      let canvasData: CanvasData;
-      const existingCanvasDocuments = await this.retrieveExistingCanvasDocuments(user.uid);
-
-      if (existingCanvasDocuments.size > 0) {
-        canvasData = {
-          last_modified_at: new Date(),
-          data: JSON.stringify(this._canvas?.toJSON())
-        };
-
-        const latestCanvasDocument = existingCanvasDocuments.docs[0].ref;
-        latestCanvasDocument.update(canvasData);
-      } else {
-        canvasData = {
-          created_at: new Date(),
-          last_modified_at: new Date(),
-          data: JSON.stringify(this._canvas?.toJSON())
-        };
-
-        const userDoc: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
-        const userRef = userDoc.ref;
-        await userRef.collection('canvas_data').add(canvasData);
-      }
-    } else {
-      this.router.navigateByUrl('/login');
-    }
-  }
-
-  async retrieveExistingCanvasDocuments(uid: string): Promise<firebase.firestore.QuerySnapshot> {
-    const userDoc: AngularFirestoreDocument<any> = this.afs.doc(`users/${uid}`);
-    const userRef = userDoc.ref;
-    return userRef.collection('canvas_data')
-      .orderBy("last_modified_at", "desc").get();
   }
 
   async onColorChange(value: string) {
@@ -130,7 +76,7 @@ export class HomepageComponent implements OnInit {
     this.imageUploaded = false;
     this.selectedFile = event.target.files[0];
     const user = this.authService.getUser();
-    
+
     if (user != null) {
       const currentDate = new Date();
       const filePath = `/${user.uid}/${currentDate.getTime().toString()}.png`;
@@ -185,7 +131,7 @@ export class HomepageComponent implements OnInit {
     if (this._canvas != null) {
       this._canvas.clear();
       this._canvas.loadFromJSON(this.clearCanvasJson, this._canvas.renderAll.bind(this._canvas));
-      this.storeCanvasDataInFirestore();
+      this.databaseService.storeCanvasDataInFirestore(this._canvas);
     }
   }
 
