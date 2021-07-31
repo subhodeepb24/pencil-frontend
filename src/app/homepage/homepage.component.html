@@ -1,22 +1,23 @@
 <h1>Canvas</h1>
 <div class="container">
     <mat-spinner style="margin:0 auto;" *ngIf="canvasLoaded === false || imageUploaded === false"></mat-spinner>
+    
     <br>
 
-    <div style=' text-align:center'>
+    <div>
         <canvas width="600" height="600" style="border: 1px solid #cccccc;" id="fabricSurface"></canvas>
         <br>
     </div>
 
-    <p style='display:inline; font-family:sans-serif;'>Choose Color : </p>
-    <input [(colorPicker)]="color" [style.background]="color" (colorPickerChange)="onColorChange($event)" />
+    <p>Choose Color : </p>
+    <input [(colorPicker)]="brushColor" [style.background]="brushColor" (colorPickerChange)="onColorChange($event)" />
 
     <input #fileUpload hidden="true" type="file" (change)="imageUpload($event)" />
     <button mat-raised-button (click)="fileUpload.click()">Upload Image</button>
 
     <br><br>
 
-    <p style='display:inline; font-family:sans-serif;'>Toggle Mode :</p>
+    <p>Toggle Mode :</p>
     <div class="button-container">
         <button mat-raised-button (click)="toggleModes()">In {{modeTitle}}</button>
     </div>
@@ -26,6 +27,7 @@
     <div class="button-container">
         <button mat-raised-button (click)="clearCanvas()">Clear Canvas</button>
     </div>
+    
     <div class="button-container">
         <button mat-raised-button color="warn" (click)="signOut()">Sign Out</button>
     </div>

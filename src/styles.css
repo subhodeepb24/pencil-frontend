@@ -1,16 +1,7 @@
-/* You can add global styles to this file, and also import other style files */
 body {
     background: #D1E8E2;
     padding-top: 1em;
     font-family: sans-serif;
-}
-
-.form-container {
-    background: white;
-    padding: 3.5em;
-    width: 500px;
-    position: fixed;
-    left: 25%;
 }
 
 .container {

@@ -11,8 +11,8 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AuthService } from './auth.service';
-import { DatabaseService } from './database.service';
+import { AuthService } from './services/auth.service';
+import { DatabaseService } from './services/database.service';
 import { HomepageComponent } from './homepage/homepage.component';
 import { LoginpageComponent } from './loginpage/loginpage.component';
 
@@ -22,6 +22,7 @@ import { LoginpageComponent } from './loginpage/loginpage.component';
     LoginpageComponent,
     HomepageComponent,
   ],
+  // Adding in all the required modules for the app.
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -33,6 +34,7 @@ import { LoginpageComponent } from './loginpage/loginpage.component';
     MatButtonModule,
     MatProgressSpinnerModule
   ],
+  // Registering the 2 provider services for the app.
   providers: [AuthService, DatabaseService],
   bootstrap: [AppComponent]
 })
