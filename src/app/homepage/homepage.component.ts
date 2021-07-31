@@ -23,7 +23,7 @@ export class HomepageComponent implements OnInit {
   protected _drawingMode = true;
 
   public modeTitle = 'Drawing Mode';
-  public brushColor = '#111111';
+  public brushColor = '#323035';
   public canvasLoaded = false;
   public imageUploaded = true;
   
