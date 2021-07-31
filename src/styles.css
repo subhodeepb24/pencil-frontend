@@ -1,5 +1,5 @@
 body {
-    background: #D1E8E2;
+    background: #8ae2e5;
     padding-top: 1em;
     font-family: sans-serif;
 }
@@ -13,7 +13,7 @@ body {
 }
 
 .mat-progress-spinner circle, .mat-spinner circle {
-    stroke: #049972;
+    stroke: #323035;
 }
 
 .button-container {
