@@ -1,27 +1,39 @@
-# PencilFrontend
+# Pencil Frontend Task
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.1.3.
+## Codebase Overview
 
-## Development server
+The project consists of following components:
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+### 1. Components:
 
-## Code scaffolding
+    - app.component: This is the root component of the app
+    - login.component: This is the component corresponding to the login/sign-in part of the app
+    - homepage.component: This is the component corresponding to the page where user can use the canvas
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### 2. Services:
 
-## Build
+    - auth.service: Service file containing all the authentication related functions
+    - database.service: Service file containing all the database (Firestore) related functions
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### 3. Guards:
 
-## Running unit tests
+    - auth.guard: Guard file preventing not logged in users to access internal pages (homepage) of the app.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### 4. Models:
 
-## Running end-to-end tests
+    - user: Interface for the user data object
+    - canvas_data: Interface for the canvas data object
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
-## Further help
+## Points To Note
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+- The canvas data gets synced with the database every 5 seconds.
+- When a user logs in, the canvas will get loaded with the data from the last session of the user.
+- The user can change the stroke color of the canvas using the 'Choose Color' input section in the homepage.
+- The user can clear the canvas by clicking on the 'Clear Canvas' button in the homepage.
+- The user can upload images on the canvas using the 'Upload Image' button in the homepage.
+- The user can toggle between 2 modes of interaction with the canvas, 'Drawing Mode' and 'Editing Mode':
+    - In 'Drawing Mode', the user is able to write anything on the canvas using the canvas stroke.
+    - In 'Editing Mode', the user should be able to move objects and uploaded images on the canvas.
+- In 'Editing Mode', the user can select any object/image on the canvas and delete it using the 'Delete Selected Object' button in the homepage.
+- The user can sign out of the app using the 'Sign Out' button in the homepage.

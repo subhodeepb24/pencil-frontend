@@ -26,7 +26,7 @@ export class HomepageComponent implements OnInit {
   public brushColor = '#323035';
   public canvasLoaded = false;
   public imageUploaded = true;
-  
+
   constructor(public authService: AuthService,
     public databaseService: DatabaseService,
     private afAuth: AngularFireAuth,
@@ -59,7 +59,7 @@ export class HomepageComponent implements OnInit {
           // every 5 seconds automatically.
           polling(async () => {
             this.databaseService.storeCanvasDataInFirestore(this._canvas ?? null);
-            
+
             // Abort polling when the user signs out of the app.
             if (this._isSignedOut) {
               return true;
@@ -158,6 +158,19 @@ export class HomepageComponent implements OnInit {
       this._canvas.clear();
       this._canvas.loadFromJSON(this._clearCanvasJson, this._canvas.renderAll.bind(this._canvas));
       this.databaseService.storeCanvasDataInFirestore(this._canvas);
+    }
+  }
+
+  // Function to delete a selected object on the canvas.
+  deleteObject() {
+    if (this._canvas != null) {
+      var activeObject = this._canvas.getActiveObject();
+
+      if (activeObject) {
+        if (confirm('Are you sure?')) {
+          this._canvas.remove(activeObject);
+        }
+      }
     }
   }
 
