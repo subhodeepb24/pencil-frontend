@@ -81,6 +81,7 @@ export class HomepageComponent implements OnInit {
     this.brushColor = value;
     if (this._canvas != null) {
       this._canvas.freeDrawingBrush.color = this.brushColor;
+      this.setDrawingMode();
     }
   }
 
